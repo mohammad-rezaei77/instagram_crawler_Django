@@ -60,7 +60,6 @@ class PostDetailView(APIView):
     def get(self, request, id):
         try:
             queryset = Post.objects.filter(id=id).get()
-            print(queryset)
             
             if queryset.post_data:
                 x = json.dumps(queryset.post_data)
