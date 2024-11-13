@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Post, Session
+from .models import Post, Session, log
 
 
 class SessionAdmin(admin.ModelAdmin):
@@ -30,13 +30,18 @@ class SessionAdmin(admin.ModelAdmin):
         queryset.update(is_challenge=True)
 
 
-admin.site.register(Session, SessionAdmin)
-
-
 class PostAdmin(admin.ModelAdmin):
-    list_display = ("session", "profile", "loading_time", "create_at")
+    list_display = ("profile", "session", "loading_time", "create_at")
     list_filter = ("session", "create_at")
     search_fields = ("profile", "session__username")
 
 
+class LogAdmin(admin.ModelAdmin):
+    list_display = ("content", "spot", "create_date")
+    list_filter = ("spot", "create_date")
+    search_fields = ("content", "spot")
+
+
+admin.site.register(Session, SessionAdmin)
 admin.site.register(Post, PostAdmin)
+admin.site.register(log, LogAdmin)

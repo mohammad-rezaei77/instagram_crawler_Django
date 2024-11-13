@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -6,6 +7,7 @@ from django.utils import timezone
 
 class SessionManager(models.Manager):
     def get_best_session(self):
+        print("get_best_session")
         return (
             self.filter(is_block=False)
             .filter(is_challenge=False)
@@ -55,12 +57,13 @@ class Session(models.Model):
 def create_session_on_save(sender, instance, created, **kwargs):
 
     if created:
-        from .utils import create_session
+        from .tasks import create_session
 
-        create_session(instance.username)
+        create_session.delay(instance.username)
 
 
 class Post(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     session = models.ForeignKey(Session, null=True, on_delete=models.CASCADE)
     post_data = models.JSONField(null=True, blank=True)
     profile = models.CharField(max_length=250, null=True, blank=True)
@@ -72,3 +75,13 @@ class Post(models.Model):
         self.session = Session.objects.filter(pk=session.id).first()
         self.json_posts = json_posts
         self.save()
+
+
+class log(models.Model):
+    content = models.TextField()
+    spot = models.CharField(max_length=250)
+    create_date = models.DateTimeField(auto_now_add=True)
+
+    @classmethod
+    def log_error(cls, content, spot):
+        return cls.objects.create(content=content, spot=spot)

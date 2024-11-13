@@ -31,22 +31,37 @@ class PostSerializer(serializers.ModelSerializer):
 
 
 class ImageSerializer(serializers.Serializer):
-    video_url = serializers.CharField()
+    type = serializers.CharField()
     thumbnail_url = serializers.CharField()
+    video_url = serializers.CharField()
 
 
 class JsonToObj(serializers.Serializer):
+    post_id = serializers.CharField()
     caption = serializers.CharField()
     likes = serializers.IntegerField()
     comments = serializers.IntegerField()
-    imgs = serializers.ListField(child=ImageSerializer())
     reels = serializers.CharField()
+    type = serializers.CharField()
+    media = serializers.ListField(child=ImageSerializer())
 
     class Meta:
         fields = (
+            "post_id",
             "caption",
             "likes",
             "comments",
-            "imgs",
             "reels",
+            "type",
+            "media",
         )
+
+
+class UsernameSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=255)
+
+    class Meta:
+        fields = ("username",)
+        
+class PostURLSerializer(serializers.Serializer):
+    post_url = serializers.URLField(required=True)

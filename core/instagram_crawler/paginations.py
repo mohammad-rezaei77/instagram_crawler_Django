@@ -27,6 +27,7 @@ class DefaultPagination(PageNumberPagination):
         return urlunparse(url_parts)
 
     def get_paginated_response(self, data):
+
         return Response(
             {
                 "links": {
