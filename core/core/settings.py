@@ -9,8 +9,10 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import os
 from pathlib import Path
+
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,29 +22,54 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-m3q4t0idl%$st!sw5$t=1fz%nmpi#$ajh#b-%7glsnr_=^24h4"
+SECRET_KEY = config(
+    'SECRET_KEY',
+    default="django-insecure-m3q4t0idl%$st!sw5$t=1fz%nmpi#$ajh#b-%7glsnr_=^24h4"
+    )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
 
-INSTALLED_APPS = [
+# Django apps
+DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+]
+
+# Third-party apps
+THIRD_PARTY_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "instagrapi",
+]
+
+# Project apps
+PROJECT_APPS = [
     "instagram_crawler",
     "accounts",
 ]
+
+# Combine all apps in the correct order
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJECT_APPS
+
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://*.127.0.0.1",
+    "https://*.127.0.0.1",
+    "http://instagram.starbot.ir/",
+    "https://instagram.starbot.ir/",
+]
+CORS_ALLOW_ALL_ORIGINS = True
+
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -111,7 +138,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Celery configuration
-
 CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
 CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
 CELERY_ACCEPT_CONTENT = ["json"]
@@ -124,7 +150,7 @@ CELERY_TIMEZONE = "Asia/Tehran"
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = config("TIME_ZONE", default="Asia/Tehran")
 
 USE_I18N = True
 
@@ -132,6 +158,12 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = "static/"
