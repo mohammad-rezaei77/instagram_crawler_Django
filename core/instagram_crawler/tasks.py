@@ -19,12 +19,12 @@ from instagram_crawler.models import Post, Session, log
 def create_session(username):
     print("starting create_session")
 
-    # proxy_ip="http://170.64.207.199"
-    # proxy_port="3128"
-    # set_proxy = f"{proxy_ip}:{proxy_port}"
+    proxy_ip="http://170.64.207.199"
+    proxy_port="3128"
+    set_proxy = f"{proxy_ip}:{proxy_port}"
 
     cl = Client()
-    # cl.set_proxy(set_proxy)
+    cl.set_proxy(set_proxy)
     obj = Session.objects.get(username=username)
     cl.login(obj.username, obj.password)
     session_data = cl.get_settings()
@@ -34,12 +34,12 @@ def create_session(username):
 
 
 class InstagramDataFetcher:
-    def __init__(self, proxy_ip="http://10.10.1.40", proxy_port="9848"):
+    def __init__(self, proxy_ip="http://170.64.207.199", proxy_port="3128"):
         self.session = Session.objects.get_best_session()
         self.set_proxy = f"{proxy_ip}:{proxy_port}"
 
         self.client = Client()
-        # self.client.set_proxy(self.set_proxy)
+        self.client.set_proxy(self.set_proxy)
         self.client.set_settings(self.session.session_data)
         self.client.delay_range = [1, 50]
         self.logged_in = False
