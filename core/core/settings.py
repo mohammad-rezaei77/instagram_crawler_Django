@@ -65,8 +65,8 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJECT_APPS
 CSRF_TRUSTED_ORIGINS = [
     "http://*.127.0.0.1",
     "https://*.127.0.0.1",
-    "http://instagram.starbot.ir/",
-    "https://instagram.starbot.ir/",
+    "http://instagram.starbot.ir",
+    "https://instagram.starbot.ir",
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 
