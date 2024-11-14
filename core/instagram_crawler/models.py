@@ -57,9 +57,9 @@ class Session(models.Model):
 def create_session_on_save(sender, instance, created, **kwargs):
 
     if created:
-        from .tasks import create_session
-
-        create_session.delay(instance.username)
+        pass
+        # from .tasks import create_session
+        # create_session.delay(instance.username)
 
 
 class Post(models.Model):
