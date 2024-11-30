@@ -18,9 +18,9 @@ from instagram_crawler.models import Post, Session, log
 @shared_task
 def create_session(username):
     print("starting create_session")
-
-    proxy_ip="http://170.64.207.199"
-    proxy_port="3128"
+    
+    proxy_ip="http://89.238.132.188"
+    proxy_port="6579"
     set_proxy = f"{proxy_ip}:{proxy_port}"
 
     cl = Client()
@@ -34,21 +34,36 @@ def create_session(username):
 
 
 class InstagramDataFetcher:
-    def __init__(self, proxy_ip="http://170.64.207.199", proxy_port="3128"):
-        self.session = Session.objects.get_best_session()
-        self.set_proxy = f"{proxy_ip}:{proxy_port}"
+    def __init__(self, proxy_ip="http://89.238.132.188", proxy_port="6579"):
+        try:
+            # Initialize session
+            self.session = Session.objects.get_best_session()
+            if not self.session:
+                raise ValueError("No valid session found.")
+            
+            # Set up proxy
+            self.set_proxy = f"{proxy_ip}:{proxy_port}"
+            self.client = Client()
+            self.client.set_proxy(self.set_proxy)
+            self.client.set_settings(self.session.session_data)
+            self.client.delay_range = [1, 50]
+            self.logged_in = False
+            
+            # Try to login
+            self.login()
 
-        self.client = Client()
-        self.client.set_proxy(self.set_proxy)
-        self.client.set_settings(self.session.session_data)
-        self.client.delay_range = [1, 50]
-        self.logged_in = False
-        self.login()
+        except ConnectionError as e:
+            print("Error: Unable to connect to proxy server.", e)
+            self.logged_in = False
+        except Exception as e:
+            print("An unexpected error occurred:", e)
+            self.logged_in = False
 
     def login(self):
         print("start login...")
         USERNAME = self.session.username
         PASSWORD = self.session.password
+        content = ""
         try:
             self.client.login(USERNAME, PASSWORD)
             self.logged_in = True
