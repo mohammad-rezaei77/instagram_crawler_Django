@@ -20,7 +20,7 @@ def create_session(username):
     print("starting create_session")
     
     proxy_ip="http://89.238.132.188"
-    proxy_port="6579"
+    proxy_port="3128"
     set_proxy = f"{proxy_ip}:{proxy_port}"
 
     cl = Client()
@@ -34,7 +34,7 @@ def create_session(username):
 
 
 class InstagramDataFetcher:
-    def __init__(self, proxy_ip="http://89.238.132.188", proxy_port="6579"):
+    def __init__(self, proxy_ip="http://89.238.132.188", proxy_port="3128"):
         try:
             # Initialize session
             self.session = Session.objects.get_best_session()
