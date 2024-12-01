@@ -51,6 +51,8 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "instagrapi",
+    'rest_framework_swagger',
+    'drf_yasg',
 ]
 
 # Project apps
