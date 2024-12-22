@@ -9,7 +9,7 @@ from instagram_crawler.models import Post, PostItem, Session
 logger = logging.getLogger()
 
 
-PROXY = f"{"http://89.238.132.188"}:{"3128"}"
+PROXY = f"{'http://89.238.132.188'}:{'3128'}"
 
 
 def get_and_validate_best_session():

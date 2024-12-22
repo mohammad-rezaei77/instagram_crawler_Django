@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from instagram_crawler.models import Session
 from instagram_crawler.serializers import SessionSerializer
 
-PROXY = f"{"http://89.238.132.188"}:{"3128"}"
+PROXY = f"{'http://89.238.132.188'}:{'3128'}"
 
 
 class CreateSessionAPIView(APIView):
