@@ -6,7 +6,7 @@ from instagram_crawler.models import Session
 class SessionRegSerializer(serializers.ModelSerializer):
     class Meta:
         model = Session
-        fields = ("username", "password", "code")
+        fields = ("username", "password")
 
 
 class SessionSerializer(serializers.ModelSerializer):
