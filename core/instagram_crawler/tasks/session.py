@@ -1,5 +1,3 @@
-
-
 from celery import shared_task
 from instagrapi import Client
 
@@ -17,16 +15,13 @@ def create_and_save_session(username):
 
         # ورود با نام کاربری و رمز عبور
         cl.login(session.username, session.password)
-        
-        # ورود با sesssionid
-        # session_id = "68210237410%3Arjmexi5VOzf3SK%3A29%3AAYeDhtMktVklJd-Gun6h_MQpk2JKa2n3nJAgml_jIA"
-        # cl.login_by_sessionid(session_id)
+
 
         # ذخیره نشست
         session_data = cl.get_settings()
-        
+
         # ذخیره اطلاعات در مدل
-        session.session_data=session_data
+        session.session_data = session_data
         session.save()
         print(f"Session created and stored for user: {username}")
 
@@ -39,7 +34,7 @@ def create_and_save_session(username):
 
             # ذخیره نشست بعد از تأیید
             session_data = cl.get_settings()
-            session.session_data=session_data
+            session.session_data = session_data
 
             session.save()
             print(f"Session created and stored for user: {username}")
@@ -50,9 +45,9 @@ def create_and_save_session(username):
 @shared_task
 def create_session(username):
     print("starting create_session")
-    
-    proxy_ip="http://89.238.132.188"
-    proxy_port="3128"
+
+    proxy_ip = "http://89.238.132.188"
+    proxy_port = "3128"
     set_proxy = f"{proxy_ip}:{proxy_port}"
 
     cl = Client()
@@ -63,4 +58,3 @@ def create_session(username):
     obj.session_data = session_data
     obj.save()
     print("update session successfully")
-

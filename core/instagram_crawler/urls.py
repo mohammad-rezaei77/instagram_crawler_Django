@@ -25,7 +25,6 @@ urlpatterns = [
     ),
     path("fetch-page/", FetchPageView.as_view(), name="fetches_page"),
     path("fetch-post/", FetchSinglePostView.as_view(), name="fetch-post"),
-    
-    path('posts/', PostListAPIView.as_view(), name='post-list'),
-    path('posts/<int:pk>/', PostDetailAPIView.as_view(), name='post-detail'),
+    path("posts/", PostListAPIView.as_view(), name="post-list"),
+    path("posts/<int:pk>/", PostDetailAPIView.as_view(), name="post-detail"),
 ]

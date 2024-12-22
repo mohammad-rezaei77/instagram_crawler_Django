@@ -11,6 +11,7 @@ logger = logging.getLogger()
 
 PROXY = f"{"http://89.238.132.188"}:{"3128"}"
 
+
 def get_and_validate_best_session():
     print("get_and_validate_best_session...")
     """
@@ -63,17 +64,17 @@ def is_profile_private(cl, username):
         print(f"Error: {e}")
         return None
 
+
 def fetch_page(item_id):
     fetch_and_store_posts.delay(item_id)
 
-        
-    
     return "Starting the post fetching operation"
+
 
 @shared_task
 def fetch_and_store_posts(item_id):
     """
-    Get the best session, validation, and post storage for the specified user.    
+    Get the best session, validation, and post storage for the specified user.
     """
     print("fetch_and_store_posts...")
     try:
@@ -86,7 +87,7 @@ def fetch_and_store_posts(item_id):
 
         # adds a random delay between 1 and 5 seconds after each request
         cl.delay_range = [1, 5]
-        
+
         # Save the post in the database model
         post_obj = Post.objects.filter(id=item_id).first()
         if not post_obj:
@@ -106,7 +107,6 @@ def fetch_and_store_posts(item_id):
         medias_count = profile_info.media_count
 
         item_per_page = 20
-
 
         user_id = cl.user_id_from_username(post_obj.profile)
         count = 1
@@ -150,13 +150,8 @@ def fetch_and_store_posts(item_id):
                         for resource in post.resources
                     ],
                 }
-                PostItem.objects.create(
-                    post=post_obj,
-                    content=current_post
-                )
+                PostItem.objects.create(post=post_obj, content=current_post)
                 count += 1
-
-                
 
                 # post_obj.post_data.update(current_post)
             medias_count -= item_per_page
@@ -173,16 +168,16 @@ def fetch_and_store_posts(item_id):
 
 def fetch_single_post_data(post_url):
     """
-    Get the best session, validation, and get single post for the specified URL.    
+    Get the best session, validation, and get single post for the specified URL.
     """
-    cl = get_and_validate_best_session() # Reference to validation function
+    cl = get_and_validate_best_session()  # Reference to validation function
     if not cl:
         raise Exception(
             "No valid session found or session is invalid. Please create a session first."
         )
 
     try:
-        # Fetch post information 
+        # Fetch post information
         media_id = cl.media_pk_from_url(post_url)
         post = cl.media_info(media_id)
 

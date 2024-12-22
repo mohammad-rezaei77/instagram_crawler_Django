@@ -69,7 +69,6 @@ class Post(models.Model):
 
     profile = models.CharField(max_length=250, null=True, blank=True)
     is_private = models.BooleanField(default=False)
-    
 
     loading_time = models.CharField(max_length=250)
     create_at = models.DateTimeField(auto_now_add=True)
@@ -78,10 +77,10 @@ class Post(models.Model):
         self.session = Session.objects.filter(pk=session.id).first()
         self.json_posts = json_posts
         self.save()
+
     def __str__(self):
         return str(self.profile)
-  
-    
+
 
 class PostItem(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)

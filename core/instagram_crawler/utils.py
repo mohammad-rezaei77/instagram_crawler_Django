@@ -19,7 +19,7 @@ def create_session(username, password):
     except Exception as e:
         print(f"Error during login: {e}")
         # بررسی چالش در صورت نیاز
-        if 'challenge' in str(e):
+        if "challenge" in str(e):
             print("Challenge detected. Waiting for code...")
             challenge_code = input("Enter the code sent to your email or phone: ")
             # ارسال کد چالش
@@ -31,10 +31,11 @@ def create_session(username, password):
 
     # ذخیره داده‌ها در فایل JSON
     file_path = f"{username}_session_data.json"
-    with open(file_path, 'w') as json_file:
+    with open(file_path, "w") as json_file:
         json.dump(session_data, json_file)
 
     print(f"Session data saved to {file_path} successfully")
+
 
 # فراخوانی تابع با اطلاعات کاربری
 create_session("winner_5008", "123456789B@")

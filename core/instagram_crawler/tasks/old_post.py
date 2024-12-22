@@ -22,7 +22,7 @@ class InstagramDataFetcher:
             self.session = Session.objects.get_best_session()
             if not self.session:
                 raise ValueError("No valid session found.")
-            
+
             # Set up proxy
             self.set_proxy = f"{proxy_ip}:{proxy_port}"
             self.client = Client()
@@ -30,7 +30,7 @@ class InstagramDataFetcher:
             self.client.set_settings(self.session.session_data)
             self.client.delay_range = [1, 50]
             self.logged_in = False
-            
+
             # Try to login
             self.login()
 
@@ -163,7 +163,7 @@ class InstagramDataFetcher:
         try:
             insta_post = Post.objects.filter(id=page_id).first()
             insta_post.session = self.session
-            
+
             if self.logged_in:
                 profile_info = self.client.user_info_by_username(profile_username)
                 user_id = self.client.user_id_from_username(profile_username)
@@ -180,7 +180,7 @@ class InstagramDataFetcher:
                     medias, end_cursor = self.client.user_medias_paginated(
                         user_id, item_per_page, end_cursor=end_cursor
                     )
-                    
+
                     for post in medias:
                         current_post = {
                             "post_id": post.pk,
@@ -191,15 +191,31 @@ class InstagramDataFetcher:
                             "type": post.media_type,
                             "media": [
                                 {
-                                    "type": "img" if resource.media_type == 1 else "view" if resource.media_type == 2 else "igtv",
-                                    "thumbnail_url": str(resource.thumbnail_url if resource.media_type == 1 else resource.video_url),
-                                    "video_url": str(resource.video_url) if resource.media_type != 1 else None
+                                    "type": (
+                                        "img"
+                                        if resource.media_type == 1
+                                        else (
+                                            "view"
+                                            if resource.media_type == 2
+                                            else "igtv"
+                                        )
+                                    ),
+                                    "thumbnail_url": str(
+                                        resource.thumbnail_url
+                                        if resource.media_type == 1
+                                        else resource.video_url
+                                    ),
+                                    "video_url": (
+                                        str(resource.video_url)
+                                        if resource.media_type != 1
+                                        else None
+                                    ),
                                 }
                                 for resource in post.resources
-                            ]                      
+                            ],
                         }
                         Log.log_error(spot="current_post", content=current_post)
-                        
+
                         all_posts.append(current_post)
                     medias_count -= item_per_page
 
@@ -208,17 +224,17 @@ class InstagramDataFetcher:
                     # print(f"OLD POSTS : {existing_json_data}")
 
                     # Append New Json To Old One
-                    
+
                     existing_json_data.append(all_posts)
                     # print(f"NEW POSTS : {existing_json_data}")
 
                     # Update Post
                     insta_post.post_data = existing_json_data[-1]
-                    
+
                     end_time = time.time()
                     loading_time = end_time - start_time
                     insta_post.loading_time = loading_time
-                    
+
                     insta_post.save()
 
                 return True

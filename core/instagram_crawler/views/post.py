@@ -27,7 +27,7 @@ class FetchPageView(APIView):
         serializer = UsernameSerializer(data=request.data)
         if serializer.is_valid():
             username = serializer.validated_data["username"]
-            
+
             client = get_and_validate_best_session()
             if not client:
                 return Response(
@@ -40,22 +40,21 @@ class FetchPageView(APIView):
                     {"error": f"Could not retrieve privacy status for {username}."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            
+
             post = Post.objects.create(
-                    profile=username,
-                    is_private=is_private,
-                    )
+                profile=username,
+                is_private=is_private,
+            )
             fetch_page(post.id)
             print("fetch_page...")
             return Response(
-                    {
-                        "message": f"Profile crawl request for {username} was processed.",
-                        "is_private": is_private,
-                        "post_id": post.id
-                    },
-                    status=status.HTTP_200_OK,      
-                )
-        
+                {
+                    "message": f"Profile crawl request for {username} was processed.",
+                    "is_private": is_private,
+                    "post_id": post.id,
+                },
+                status=status.HTTP_200_OK,
+            )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

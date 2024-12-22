@@ -45,7 +45,7 @@ class LogAdmin(admin.ModelAdmin):
 class PostItemAdmin(admin.ModelAdmin):
     list_display = ("content",)
     list_filter = ("post",)
-    
+
 
 admin.site.register(PostItem, PostItemAdmin)
 admin.site.register(Session, SessionAdmin)
