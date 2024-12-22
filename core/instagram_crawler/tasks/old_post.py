@@ -12,25 +12,7 @@ from instagrapi.exceptions import (
     SelectContactPointRecoveryForm,
 )
 
-from instagram_crawler.models import Post, Session, log
-
-
-@shared_task
-def create_session(username):
-    print("starting create_session")
-    
-    proxy_ip="http://89.238.132.188"
-    proxy_port="3128"
-    set_proxy = f"{proxy_ip}:{proxy_port}"
-
-    cl = Client()
-    cl.set_proxy(set_proxy)
-    obj = Session.objects.get(username=username)
-    cl.login(obj.username, obj.password)
-    session_data = cl.get_settings()
-    obj.session_data = session_data
-    obj.save()
-    print("update session successfully")
+from instagram_crawler.models import Log, Post, Session
 
 
 class InstagramDataFetcher:
@@ -84,7 +66,7 @@ class InstagramDataFetcher:
                 print("BadPassword")
                 self.client.logger.exception(e)
 
-                log.log_error(
+                Log.log_error(
                     spot="store_instagram_login", content=f"Wrong Password: {e}"
                 )
 
@@ -99,7 +81,7 @@ class InstagramDataFetcher:
                 self.client.logger.exception(e)
                 self.client.relogin()
 
-                log.log_error(
+                Log.log_error(
                     spot="store_instagram_login", content=f"Login Required: {e}"
                 )
 
@@ -122,7 +104,7 @@ class InstagramDataFetcher:
                 ) as e:
                     content = f"Challenge, Recaptcha Required: {e}"
 
-                log.log_error(spot="store_instagram_login", content=content)
+                Log.log_error(spot="store_instagram_login", content=content)
                 self.session.hit_challenge()
                 self.session = Session.objects.get_best_session()
                 self.client.set_settings(self.session.session_data)
@@ -147,7 +129,7 @@ class InstagramDataFetcher:
                     This block will expire on 2020-03-27.
                     """
                     content = f"Action Blocked: {e}"
-                log.log_error(spot="store_instagram_login", content=content)
+                Log.log_error(spot="store_instagram_login", content=content)
                 self.session.temp_block()
                 self.session = Session.objects.get_best_session()
                 self.client.set_settings(self.session.session_data)
@@ -156,7 +138,7 @@ class InstagramDataFetcher:
             # If Need To Wait Few Minutes
             elif isinstance(e, PleaseWaitFewMinutes):
                 print("PleaseWaitFewMinutes")
-                log.log_error(
+                Log.log_error(
                     spot="store_instagram_login", content=f"Wait Few Minutes:{e}"
                 )
                 self.session.temp_block()
@@ -168,7 +150,7 @@ class InstagramDataFetcher:
             else:
                 print("We Blocked")
 
-                log.log_error(spot="except-login-insta", content=f"Couldn't login: {e}")
+                Log.log_error(spot="except-login-insta", content=f"Couldn't login: {e}")
                 self.session.block()
                 self.session = Session.objects.get_best_session()
                 self.client.set_settings(self.session.session_data)
@@ -216,7 +198,7 @@ class InstagramDataFetcher:
                                 for resource in post.resources
                             ]                      
                         }
-                        log.log_error(spot="current_post", content=current_post)
+                        Log.log_error(spot="current_post", content=current_post)
                         
                         all_posts.append(current_post)
                     medias_count -= item_per_page
@@ -242,10 +224,10 @@ class InstagramDataFetcher:
                 return True
             else:
                 print("------------------------------logged_in else")
-                log.log_error(spot="insta-fetch-posts", content="Not authenticated!")
+                Log.log_error(spot="insta-fetch-posts", content="Not authenticated!")
                 return False
         except Exception as e:
-            log.log_error(
+            Log.log_error(
                 spot="except-insta-fetch-posts", content=f"Couldn't fetch posts: {e}"
             )
             return False
@@ -261,40 +243,3 @@ def fetch_profile_data(page_id):
     end_time = time.time()
     loading_time = end_time - start_time
     print(f"Execution time: {loading_time} seconds.")
-
-
-@shared_task
-def fetch_single_post_data(post_url):
-    session = Session.objects.get_best_session()
-    client = Client()
-    client.set_settings(session.session_data)
-
-    # client.login()
-
-    try:
-        # واکشی اطلاعات پست
-        media_id = client.media_pk_from_url(post_url)
-        post = client.media_info(media_id)
-
-        current_post = {
-            "caption": post.caption_text,
-            "likes": post.like_count,
-            "comments": post.comment_count,
-            "reels": str(post.video_url) if post.video_url else None,
-            "type": post.media_type,
-            "imgs": [
-                {
-                    "thumbnail_url": str(
-                        resource.thumbnail_url
-                        if resource.media_type == 1
-                        else resource.video_url
-                    ),
-                    "video_url": str(resource.video_url) if resource.video_url else None,
-                }
-                for resource in post.resources
-            ],
-        }
-        return current_post
-
-    except Exception as e:
-        return {"error": f"Failed to fetch post details: {str(e)}"}

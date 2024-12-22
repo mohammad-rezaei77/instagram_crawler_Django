@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Post, Session, log
+from .models import Log, Post, PostItem, Session
 
 
 class SessionAdmin(admin.ModelAdmin):
@@ -42,6 +42,12 @@ class LogAdmin(admin.ModelAdmin):
     search_fields = ("content", "spot")
 
 
+class PostItemAdmin(admin.ModelAdmin):
+    list_display = ("content",)
+    list_filter = ("post",)
+    
+
+admin.site.register(PostItem, PostItemAdmin)
 admin.site.register(Session, SessionAdmin)
 admin.site.register(Post, PostAdmin)
-admin.site.register(log, LogAdmin)
+admin.site.register(Log, LogAdmin)
