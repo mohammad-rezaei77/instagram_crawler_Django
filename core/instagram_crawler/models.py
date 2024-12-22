@@ -20,7 +20,7 @@ class SessionManager(models.Manager):
 class Session(models.Model):
     username = models.CharField(max_length=250, blank=False, null=False)
     password = models.CharField(max_length=250, blank=False, null=False)
-    code = models.CharField(max_length=250, blank=True, null=True)
+    # code = models.CharField(max_length=250, blank=True, null=True)
     session_data = models.JSONField(null=True, blank=True)
 
     is_block = models.BooleanField(default=False)
