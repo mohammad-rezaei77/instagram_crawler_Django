@@ -61,9 +61,11 @@ class FetchPageView(APIView):
 
 class FetchSinglePostView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = PostURLSerializer
+
 
     def post(self, request, *args, **kwargs):
-        serializer = PostURLSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
             post_url = serializer.validated_data["post_url"]
