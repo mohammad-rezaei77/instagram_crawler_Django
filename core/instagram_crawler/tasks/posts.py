@@ -182,6 +182,7 @@ def fetch_single_post_data(post_url):
             raise Exception("This account is private, and you don't have access.")
 
         current_post = {
+            "post_pk": post.pk,
             "caption": post.caption_text,
             "likes": post.like_count,
             "comments": post.comment_count,
