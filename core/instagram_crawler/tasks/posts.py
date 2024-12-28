@@ -58,25 +58,23 @@ def is_profile_private(cl, username):
     try:
         user_id = cl.user_id_from_username(username)
         user_info = cl.user_info(user_id)
-        print(f"is private: {user_info.is_private}")
         return user_info.is_private
     except Exception as e:
         print(f"Error: {e}")
         return None
 
 
-def fetch_page(item_id):
-    fetch_and_store_posts.delay(item_id)
-
+def fetch_page(item_id, requested_posts):
+    fetch_and_store_posts.delay(item_id, requested_posts)
     return "Starting the post fetching operation"
 
 
 @shared_task
-def fetch_and_store_posts(item_id):
+def fetch_and_store_posts(item_id, requested_posts):
     """
     Get the best session, validation, and post storage for the specified user.
     """
-    print("fetch_and_store_posts...")
+    requested_posts = int(requested_posts)
     try:
         # Step 1: Get and validate the best session
         cl = get_and_validate_best_session()  # Reference to validation function
@@ -85,37 +83,36 @@ def fetch_and_store_posts(item_id):
                 "No valid session found or session is invalid. Please create a session first."
             )
 
-        # adds a random delay between 1 and 5 seconds after each request
-        cl.delay_range = [1, 5]
+        # adds a random delay between 3 and 6 seconds after each request
+        cl.delay_range = [3, 6]
 
         # Save the post in the database model
         post_obj = Post.objects.filter(id=item_id).first()
         if not post_obj:
             raise Exception(f"post_obj with id {item_id} not found.")
 
-        # Check if a page is public or private
-        # is_private = is_profile_private(cl, post_obj.profile)
-        # if is_private:
-        #     post_obj.is_private = True
-        #     post_obj.save()
-        #     raise Exception(f"Page ({post_obj.profile}) is private")
-
         current_post = {}
 
         profile_info = cl.user_info_by_username(post_obj.profile)
 
-        medias_count = profile_info.media_count
-
+        medias_count = int(profile_info.media_count)
         item_per_page = 20
 
         user_id = cl.user_id_from_username(post_obj.profile)
-        count = 1
+        
         end_cursor = None
-        while medias_count > 0:
-            print(f"medias_count:{medias_count}")
 
+        if requested_posts == 0 :
+            remaining_posts = medias_count
+        else:
+            remaining_posts = requested_posts
+            
+        remaining_posts= int(remaining_posts)
+        
+        while remaining_posts > 0:
+            fetch_count = min(item_per_page, remaining_posts)
             posts, end_cursor = cl.user_medias_paginated(
-                user_id, item_per_page, end_cursor=end_cursor
+                user_id, fetch_count, end_cursor=end_cursor
             )
             for post in posts:
 
@@ -151,7 +148,7 @@ def fetch_and_store_posts(item_id):
                     ],
                 }
                 PostItem.objects.create(post=post_obj, content=current_post)
-                count += 1
+            remaining_posts -= fetch_count
 
                 # post_obj.post_data.update(current_post)
             medias_count -= item_per_page

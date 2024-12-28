@@ -5,9 +5,10 @@ from instagram_crawler.models import Post, PostItem
 
 class UsernameSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=255)
+    requested_posts = serializers.CharField(max_length=255)
 
     class Meta:
-        fields = ("username",)
+        fields = ("username","requested_posts")
 
 
 class PostURLSerializer(serializers.Serializer):

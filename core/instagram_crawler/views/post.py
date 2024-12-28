@@ -27,7 +27,8 @@ class FetchPageView(APIView):
         serializer = UsernameSerializer(data=request.data)
         if serializer.is_valid():
             username = serializer.validated_data["username"]
-
+            requested_posts = serializer.validated_data["requested_posts"]
+            
             client = get_and_validate_best_session()
             if not client:
                 return Response(
@@ -45,8 +46,8 @@ class FetchPageView(APIView):
                 profile=username,
                 is_private=is_private,
             )
-            fetch_page(post.id)
-            print("fetch_page...")
+            fetch_page(post.id, requested_posts)
+
             return Response(
                 {
                     "message": f"Profile crawl request for {username} was processed.",
