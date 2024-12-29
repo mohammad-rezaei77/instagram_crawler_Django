@@ -52,7 +52,7 @@ class FetchPageView(APIView):
                 {
                     "message": f"Profile crawl request for {username} was processed.",
                     "is_private": is_private,
-                    "post_id": post.id,
+                    "post_id": post.id
                 },
                 status=status.HTTP_200_OK,
             )
@@ -94,6 +94,7 @@ class PostListAPIView(APIView):
 
 
 class PostDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request, pk, *args, **kwargs):
         # پیدا کردن پست
         try:

@@ -37,9 +37,8 @@ class PostAdmin(admin.ModelAdmin):
 
 
 class LogAdmin(admin.ModelAdmin):
-    list_display = ("content", "spot", "create_date")
-    list_filter = ("spot", "create_date")
-    search_fields = ("content", "spot")
+    list_display = ("spot", "content", "create_date")
+    search_fields = ("spot", "content")
 
 
 class PostItemAdmin(admin.ModelAdmin):

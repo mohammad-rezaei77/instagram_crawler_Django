@@ -1,3 +1,4 @@
+import datetime
 import logging
 
 from celery import shared_task
@@ -76,6 +77,7 @@ def fetch_and_store_posts(item_id, requested_posts):
     """
     requested_posts = int(requested_posts)
     try:
+        start_time = datetime.datetime.now()
         # Step 1: Get and validate the best session
         cl = get_and_validate_best_session()  # Reference to validation function
         if not cl:
@@ -121,6 +123,7 @@ def fetch_and_store_posts(item_id, requested_posts):
                     "caption": post.caption_text,
                     "likes": post.like_count,
                     "comments": post.comment_count,
+                    "usertags": [item.user.username for item in post.usertags],
                     "view_count": post.view_count,
                     "type": post.media_type,
                     "product_type": post.product_type,
@@ -152,6 +155,12 @@ def fetch_and_store_posts(item_id, requested_posts):
 
                 # post_obj.post_data.update(current_post)
             medias_count -= item_per_page
+        
+        end_time = datetime.datetime.now()
+        duration = (end_time - start_time).total_seconds()
+        post_obj.loading_time = duration
+        post_obj.save()
+        
         logger.info(
             f"Successfully fetched and stored {len(posts)} posts for user: {post_obj.profile}"
         )
@@ -180,12 +189,13 @@ def fetch_single_post_data(post_url):
 
         if post.user.is_private:
             raise Exception("This account is private, and you don't have access.")
-
+            
         current_post = {
             "post_pk": post.pk,
             "caption": post.caption_text,
             "likes": post.like_count,
             "comments": post.comment_count,
+            "usertags": [item.user.username for item in post.usertags],
             "view_count": post.view_count,
             "reels": str(post.video_url) if post.video_url else None,
             "type": post.media_type,
