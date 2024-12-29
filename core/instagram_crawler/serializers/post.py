@@ -16,13 +16,14 @@ class PostURLSerializer(serializers.Serializer):
 
 
 class PostItemSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = PostItem
         fields = ["id", "post", "content"]
 
 
 class PostSerializer(serializers.ModelSerializer):
-    post_items = PostItemSerializer(many=True, read_only=True, source="postitem_set")
+    # post_items = PostItemSerializer(many=True, read_only=True, source="postitem_set")
 
     class Meta:
         model = Post
@@ -32,5 +33,5 @@ class PostSerializer(serializers.ModelSerializer):
             "is_private",
             "loading_time",
             "create_at",
-            "post_items",
+            # "post_items",
         ]
