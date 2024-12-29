@@ -113,4 +113,5 @@ class PostDetailAPIView(APIView):
 
         # سریالایز کردن داده‌ها
         serializer = PostItemSerializer(paginated_items, many=True)
-        return paginator.get_paginated_response(serializer.data)
+        
+        return paginator.get_paginated_response(serializer.data, post.loading_time)

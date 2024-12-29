@@ -26,7 +26,7 @@ class DefaultPagination(PageNumberPagination):
         url_parts[0] = "https"  # Set the scheme to https
         return urlunparse(url_parts)
 
-    def get_paginated_response(self, data):
+    def get_paginated_response(self, data, loading_time):
 
         return Response(
             {
@@ -38,6 +38,7 @@ class DefaultPagination(PageNumberPagination):
                 "total_pages": self.page.paginator.num_pages,
                 "current_page": self.page.number,
                 "page_size": self.request.query_params.get(self.page_size_query_param),
+                "loading_time": loading_time,
                 "results": data,
             }
         )
