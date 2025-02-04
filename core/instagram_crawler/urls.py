@@ -10,6 +10,7 @@ from instagram_crawler.views import (
     ResolveChallengeAPIView,
     SessionDetailView,
     SessionListCreateView,
+    UserInfoView,
 )
 
 urlpatterns = [
@@ -27,4 +28,5 @@ urlpatterns = [
     path("fetch-post/", FetchSinglePostView.as_view(), name="fetch-post"),
     path("posts/", PostListAPIView.as_view(), name="post-list"),
     path("posts/<int:pk>/", PostDetailAPIView.as_view(), name="post-detail"),
+    path("user-info/", UserInfoView.as_view(), name="user-info")
 ]

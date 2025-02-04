@@ -223,3 +223,23 @@ def fetch_single_post_data(post_url):
 
     except Exception as e:
         logger.error("Failed to fetch post details:%s", e)
+
+def fetch_user_info(user_name):
+    cl = get_and_validate_best_session()  # Reference to validation function
+    if not cl:
+        raise Exception(
+            "No valid session found or session is invalid. Please create a session first."
+        )
+    user_info = cl.user_info_by_username(user_name)
+    user_information = {
+        "full_name": user_info.full_name,
+        "followers_count": user_info.follower_count ,
+        "following_count": user_info.following_count,
+        "media_count": user_info.media_count,
+        "biography": user_info.biography ,
+        "external_url": user_info.external_url,
+        "is_private": user_info.is_private,
+    }
+    return user_information
+
+    

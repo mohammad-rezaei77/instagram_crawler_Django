@@ -9,11 +9,13 @@ from instagram_crawler.serializers import (
     PostItemSerializer,
     PostSerializer,
     PostURLSerializer,
+    UserInfoSerializer,
     UsernameSerializer,
 )
 from instagram_crawler.tasks import (
     fetch_page,
     fetch_single_post_data,
+    fetch_user_info,
     get_and_validate_best_session,
     is_profile_private,
 )
@@ -115,3 +117,27 @@ class PostDetailAPIView(APIView):
         serializer = PostItemSerializer(paginated_items, many=True)
         
         return paginator.get_paginated_response(serializer.data, post.loading_time)
+
+class UserInfoView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserInfoSerializer
+
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            post_url = serializer.validated_data["user_name"]
+            
+            data = fetch_user_info(post_url)
+
+            return Response(
+                {
+                    "result": data,
+                },
+                status=status.HTTP_202_ACCEPTED,
+            )
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    

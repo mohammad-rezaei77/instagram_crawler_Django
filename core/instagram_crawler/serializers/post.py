@@ -35,3 +35,8 @@ class PostSerializer(serializers.ModelSerializer):
             "create_at",
             # "post_items",
         ]
+
+class UserInfoSerializer(serializers.Serializer):
+    user_name = serializers.CharField(required=True)
+
+    
