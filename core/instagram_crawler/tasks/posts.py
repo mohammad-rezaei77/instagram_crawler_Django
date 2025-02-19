@@ -5,7 +5,7 @@ from celery import shared_task
 from instagrapi import Client
 from instagrapi.exceptions import LoginRequired
 
-from instagram_crawler.models import Post, PostItem, Session
+from instagram_crawler.models import Log, Post, PostItem, Session
 
 logger = logging.getLogger()
 
@@ -86,7 +86,7 @@ def fetch_and_store_posts(item_id, requested_posts):
             )
 
         # adds a random delay between 3 and 6 seconds after each request
-        cl.delay_range = [3, 6]
+        cl.delay_range = [3, 10]
 
         # Save the post in the database model
         post_obj = Post.objects.filter(id=item_id).first()
@@ -112,10 +112,13 @@ def fetch_and_store_posts(item_id, requested_posts):
         remaining_posts= int(remaining_posts)
         
         while remaining_posts > 0:
+            Log.objects.create(spot=f"step1 item_per_page, remaining_posts: {post_obj.profile}", content=[item_per_page, remaining_posts])
+            
             fetch_count = min(item_per_page, remaining_posts)
             posts, end_cursor = cl.user_medias_paginated(
                 user_id, fetch_count, end_cursor=end_cursor
             )
+            Log.objects.create(spot=f"step2 crawl_page:{post_obj.profile}", content=posts)
             for post in posts:
 
                 current_post = {
