@@ -110,7 +110,8 @@ def fetch_and_store_posts(item_id, requested_posts):
             remaining_posts = requested_posts
             
         remaining_posts= int(remaining_posts)
-        
+        all_posts = []
+
         while remaining_posts > 0:
             Log.objects.create(spot=f"step1 item_per_page, remaining_posts: {post_obj.profile}", content=[item_per_page, remaining_posts])
             
@@ -119,45 +120,50 @@ def fetch_and_store_posts(item_id, requested_posts):
                 user_id, fetch_count, end_cursor=end_cursor
             )
             Log.objects.create(spot=f"step2 crawl_page:{post_obj.profile}", content=posts)
-            for post in posts:
+            all_posts.extend(posts)
+            remaining_posts -= len(posts)
+            
+            if not end_cursor:
+                break  # اگر end_cursor وجود نداشته باشد، یعنی دیگر پستی برای دریافت وجود ندارد
+        for post in all_posts:
 
-                current_post = {
-                    "post_pk": post.pk,
-                    "caption": post.caption_text,
-                    "likes": post.like_count,
-                    "comments": post.comment_count,
-                    "usertags": [item.user.username for item in post.usertags],
-                    "view_count": post.view_count,
-                    "type": post.media_type,
-                    "product_type": post.product_type,
-                    "thumbnail_url": str(post.thumbnail_url),
-                    "video_url": str(post.video_url),
-                    "media": [
-                        {
-                            "type": (
-                                "Photo"
-                                if resource.media_type == 1
+            current_post = {
+                "post_pk": post.pk,
+                "caption": post.caption_text,
+                "likes": post.like_count,
+                "comments": post.comment_count,
+                "usertags": [item.user.username for item in post.usertags],
+                "view_count": post.view_count,
+                "type": post.media_type,
+                "product_type": post.product_type,
+                "thumbnail_url": str(post.thumbnail_url),
+                "video_url": str(post.video_url),
+                "media": [
+                    {
+                        "type": (
+                            "Photo"
+                            if resource.media_type == 1
+                            else (
+                                "Video"
+                                if resource.media_type == 2
                                 else (
-                                    "Video"
-                                    if resource.media_type == 2
-                                    else (
-                                        "Album"
-                                        if resource.media_type == 8
-                                        else "unknown"
-                                    )
+                                    "Album"
+                                    if resource.media_type == 8
+                                    else "unknown"
                                 )
-                            ),
-                            "thumbnail_url": str(resource.thumbnail_url),
-                            "Video": str(resource.video_url),
-                        }
-                        for resource in post.resources
-                    ],
-                }
-                PostItem.objects.create(post=post_obj, content=current_post)
-            remaining_posts -= fetch_count
+                            )
+                        ),
+                        "thumbnail_url": str(resource.thumbnail_url),
+                        "Video": str(resource.video_url),
+                    }
+                    for resource in post.resources
+                ],
+            }
+            PostItem.objects.create(post=post_obj, content=current_post)
+            # remaining_posts -= fetch_count
 
                 # post_obj.post_data.update(current_post)
-            medias_count -= item_per_page
+            # medias_count -= item_per_page
         
         end_time = datetime.datetime.now()
         duration = (end_time - start_time).total_seconds()
