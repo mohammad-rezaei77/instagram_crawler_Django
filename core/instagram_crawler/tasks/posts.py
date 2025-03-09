@@ -96,12 +96,10 @@ def fetch_and_store_posts(item_id, requested_posts):
         current_post = {}
 
         profile_info = cl.user_info_by_username(post_obj.profile)
-
         medias_count = int(profile_info.media_count)
         item_per_page = 20
 
         user_id = cl.user_id_from_username(post_obj.profile)
-        
         end_cursor = None
 
         if requested_posts == 0 :
@@ -111,7 +109,6 @@ def fetch_and_store_posts(item_id, requested_posts):
             
         remaining_posts= int(remaining_posts)
         all_posts = []
-
         while remaining_posts > 0:
             Log.objects.create(spot=f"step1 item_per_page, remaining_posts: {post_obj.profile}", content=[item_per_page, remaining_posts])
             
@@ -241,6 +238,7 @@ def fetch_user_info(user_name):
         )
     user_info = cl.user_info_by_username(user_name)
     user_information = {
+        "profile_pic_url":str(user_info.profile_pic_url),
         "full_name": user_info.full_name,
         "followers_count": user_info.follower_count ,
         "following_count": user_info.following_count,
