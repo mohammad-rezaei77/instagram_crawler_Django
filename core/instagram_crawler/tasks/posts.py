@@ -61,6 +61,7 @@ def is_profile_private(cl, username):
         user_info = cl.user_info(user_id)
         return user_info.is_private
     except Exception as e:
+        Log.objects.create(spot="is_profile_private", content=f"error {username}, {str(e)} ")
         print(f"Error: {e}")
         return None
 
@@ -109,19 +110,16 @@ def fetch_and_store_posts(item_id, requested_posts):
             
         remaining_posts= int(remaining_posts)
         all_posts = []
-        while remaining_posts > 0:
-            Log.objects.create(spot=f"step1 item_per_page, remaining_posts: {post_obj.profile}", content=[item_per_page, remaining_posts])
-            
+        while remaining_posts > 0:            
             fetch_count = min(item_per_page, remaining_posts)
             posts, end_cursor = cl.user_medias_paginated(
                 user_id, fetch_count, end_cursor=end_cursor
             )
-            Log.objects.create(spot=f"step2 crawl_page:{post_obj.profile}", content=posts)
             all_posts.extend(posts)
             remaining_posts -= len(posts)
             
             if not end_cursor:
-                break  # اگر end_cursor وجود نداشته باشد، یعنی دیگر پستی برای دریافت وجود ندارد
+                break  
         for post in all_posts:
 
             current_post = {
