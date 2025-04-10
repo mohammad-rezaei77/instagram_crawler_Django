@@ -59,9 +59,11 @@ def is_profile_private(cl, username):
     try:
         user_id = cl.user_id_from_username(username)
         user_info = cl.user_info(user_id)
+        Log.objects.create(spot="is_profile_private", content=f"username:{user_info.is_private}")
+        
         return user_info.is_private
     except Exception as e:
-        Log.objects.create(spot="is_profile_private", content=f"error {username}, {str(e)} ")
+        Log.objects.create(spot="Err_is_profile_private", content=f"error {username}, {str(e)} ")
         print(f"Error: {e}")
         return None
 
