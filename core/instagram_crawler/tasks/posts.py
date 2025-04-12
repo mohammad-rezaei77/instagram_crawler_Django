@@ -1,6 +1,7 @@
 import datetime
 import logging
 
+import requests
 from celery import shared_task
 from instagrapi import Client
 from instagrapi.exceptions import LoginRequired
@@ -12,6 +13,19 @@ logger = logging.getLogger()
 
 PROXY = f"{'http://89.238.132.188'}:{'3128'}"
 
+def check_proxy_connection():
+    try:
+        test_url = "http://www.google.com"
+        response = requests.get(test_url, proxies={"http": PROXY, "https": PROXY}, timeout=10)
+        if response.status_code == 200:
+            print("Proxy connection is working!")
+            return True
+        else:
+            print(f"Proxy connection failed with status code: {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"Proxy connection error: {e}")
+        return False    
 
 def get_and_validate_best_session():
     print("get_and_validate_best_session...")
@@ -29,7 +43,9 @@ def get_and_validate_best_session():
             return None
 
         print(f"Checking validity of session for username: {session.username}")
-
+        Log.objects.create(spot="Check proxy connection", content=check_proxy_connection())
+        
+        
         cl = Client()
         cl.set_proxy(PROXY)
 
@@ -46,6 +62,8 @@ def get_and_validate_best_session():
 
     except Exception as e:
         print(f"Session is invalid: {e}")
+        Log.objects.create(spot="Session is invalid:", content=str(e))
+        
         # Mark the session as invalid
         if session:
             session.hit_challenge()
